@@ -2,8 +2,8 @@
 @inherits MudComponentBase
 @typeparam T
 
-<div class="@Classname" style="@($"{Style};touch-action:none;transform: translate3d(0px, 0px, 0px);")"
-     id="@($"mud-drop-item-{_id}")"
+<div class="@Classname" style="@Stylename"
+     id="@_id"
      index="@Index"
      @attributes="UserAttributes"
      draggable="@(!Disabled ? "true" : "false")"

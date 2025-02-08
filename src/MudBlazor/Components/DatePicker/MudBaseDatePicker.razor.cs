@@ -23,12 +23,17 @@ namespace MudBlazor
         })
         {
             AdornmentAriaLabel = "Open Date Picker";
-            _mudPickerCalendarContentElementId = Guid.NewGuid().ToString();
+            _mudPickerCalendarContentElementId = Identifier.Create();
         }
 
-        [Inject] protected IScrollManager ScrollManager { get; set; }
+        [Inject]
+        protected IScrollManager ScrollManager { get; set; }
 
-        [Inject] private IJsApiService JsApiService { get; set; }
+        [Inject]
+        private IJsApiService JsApiService { get; set; }
+
+        [Inject]
+        protected TimeProvider TimeProvider { get; set; }
 
         /// <summary>
         /// The maximum selectable date.
@@ -131,6 +136,14 @@ namespace MudBlazor
         private DateTime? _picker_month;
 
         /// <summary>
+        /// Represents the currently selected date
+        /// </summary>
+        /// <remarks>
+        /// This date is highlighted in the UI
+        /// </remarks>
+        protected DateTime? HighlightedDate { get; set; }
+
+        /// <summary>
         /// Occurs when <see cref="PickerMonth"/> has changed.
         /// </summary>
         [Parameter]
@@ -190,7 +203,7 @@ namespace MudBlazor
         /// </summary>
         /// <remarks>
         /// Defaults to <c>ddd, dd MMM</c>.<br />
-        /// Supported date formats can be found here: <see href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings"/>.
+        /// Supported date formats can be found here: <see href="https://learn.microsoft.com/dotnet/standard/base-types/standard-date-and-time-format-strings"/>.
         /// </remarks>
         [Parameter]
         [Category(CategoryTypes.FormComponent.PickerBehavior)]
@@ -320,6 +333,10 @@ namespace MudBlazor
         protected DateTime GetMonthStart(int month)
         {
             var monthStartDate = _picker_month ?? DateTime.Today.StartOfMonth(Culture);
+            var correctYear = FixYear ?? monthStartDate.Year;
+            var correctMonth = FixMonth ?? monthStartDate.Month;
+            monthStartDate = new DateTime(correctYear, correctMonth, monthStartDate.Day, 0, 0, 0, DateTimeKind.Utc);
+
             // Return the min supported datetime of the calendar when this is year 1 and first month!
             if (_picker_month is { Year: 1, Month: 1 })
             {
@@ -507,7 +524,9 @@ namespace MudBlazor
 
         protected string GetFormattedYearString()
         {
-            return GetMonthStart(0).ToString("yyyy", Culture);
+            var selectedYear = HighlightedDate ?? GetMonthStart(0);
+
+            return selectedYear.ToString("yyyy", Culture);
         }
 
         private void OnPreviousMonthClick()
@@ -545,10 +564,16 @@ namespace MudBlazor
             }
         }
 
+        private void GoToSelectedYear()
+        {
+            PickerMonth = HighlightedDate;
+            OnYearClick();
+        }
+
         /// <summary>
         /// We need a random id for the year items in the year list so we can scroll to the item safely in every DatePicker.
         /// </summary>
-        private string _componentId = Guid.NewGuid().ToString();
+        private readonly string _componentId = Identifier.Create();
 
         /// <summary>
         /// Is set to true to scroll to the actual year after the next render
@@ -582,7 +607,9 @@ namespace MudBlazor
 
         private string GetYearClasses(int year)
         {
-            if (year == Culture.Calendar.GetYear(GetMonthStart(0)))
+            var selectedYear = HighlightedDate ?? GetMonthStart(0);
+
+            if (year == Culture.Calendar.GetYear(selectedYear))
                 return $"mud-picker-year-selected mud-{Color.ToDescriptionString()}-text";
             return null;
         }
@@ -597,8 +624,11 @@ namespace MudBlazor
 
         private Typo GetYearTypo(int year)
         {
-            if (year == Culture.Calendar.GetYear(GetMonthStart(0)))
+            var selectedYear = HighlightedDate ?? GetMonthStart(0);
+
+            if (year == Culture.Calendar.GetYear(selectedYear))
                 return Typo.h5;
+
             return Typo.subtitle1;
         }
 
@@ -631,21 +661,46 @@ namespace MudBlazor
 
         private string GetMonthClasses(DateTime month)
         {
-            if (Culture.Calendar.GetMonth(GetMonthStart(0)) == Culture.Calendar.GetMonth(month) && !IsMonthDisabled(month))
+            var selectedMonth = HighlightedDate ?? GetMonthStart(0);
+
+            if (Culture.Calendar.GetYear(month) != Culture.Calendar.GetYear(selectedMonth))
+                return null;
+
+            if (Culture.Calendar.GetMonth(month) == Culture.Calendar.GetMonth(selectedMonth) && !IsMonthDisabled(selectedMonth))
                 return $"mud-picker-month-selected mud-{Color.ToDescriptionString()}-text";
+
             return null;
         }
 
         private Typo GetMonthTypo(DateTime month)
         {
-            if (Culture.Calendar.GetMonth(GetMonthStart(0)) == Culture.Calendar.GetMonth(month))
+            var selectedMonth = HighlightedDate ?? GetMonthStart(0);
+
+            if (Culture.Calendar.GetYear(month) != Culture.Calendar.GetYear(selectedMonth))
+                return Typo.subtitle1;
+
+            if (Culture.Calendar.GetMonth(month) == Culture.Calendar.GetMonth(selectedMonth))
                 return Typo.h5;
+
             return Typo.subtitle1;
         }
         protected override void OnInitialized()
         {
             base.OnInitialized();
             CurrentView = OpenTo;
+
+            if (HighlightedDate is not null) return;
+
+            var today = TimeProvider.GetLocalNow().Date;
+
+            var year = FixYear ?? today.Year;
+            var month = FixMonth ?? (year == today.Year ? today.Month : 1);
+            var day = FixDay ?? 1;
+
+            if (DateTime.TryParseExact($"{year}-{month}-{day}", "yyyy-M-d", Culture, DateTimeStyles.None, out var date))
+            {
+                HighlightedDate = date;
+            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)

@@ -73,7 +73,7 @@ For example:
 - Your Pull Request should not include any unnecessary refactoring
 - If there are visual changes, you should include a screenshot, gif or video
 - If there are any corresponding issues, link them to the Pull Request. Include `Fixes #<issue nr>` for bug fixes and `Closes #<issue nr>` for other issues in the description ([Link issues guide](https://docs.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)) 
-- Your code should be formatted correctly ([Format documentation](https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/formatting-rules))
+- Your code should be formatted correctly ([Format documentation](https://docs.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/formatting-rules))
 
 
 
@@ -88,7 +88,7 @@ For example:
 in your component and apply styles at component level.
 - You must add tests if your component contains any logic (CSS styling requires no testing)
 - Use our `css variables` if possible. For instance, you should not hard code any colors etc.
-- Include a summary comment for every public property ([Summary documentation](https://docs.microsoft.com/de-de/dotnet/csharp/programming-guide/xmldoc/summary))
+- Include a summary comment for every public property ([Summary documentation](https://learn.microsoft.com/dotnet/csharp/language-reference/xmldoc/recommended-tags))
 - Use the `CssBuilder` for classes and styles
 - Add a doc page and examples which should be ordered from easy to more complex
 - Examples with more than 15 lines should be collapsed by default
@@ -229,7 +229,7 @@ We are slowly but surely refactoring all of those, you can help if you like.
 
 ## Avoid overwriting parameters in Blazor Components
 
-The `ParameterState` framework offers a solution to prevent parameter overwriting issues. For a detailed explanation of this problem, refer to the [article](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/overwriting-parameters?view=aspnetcore-8.0#overwritten-parameters).
+The `ParameterState` framework offers a solution to prevent parameter overwriting issues. For a detailed explanation of this problem, refer to the [article](https://learn.microsoft.com/aspnet/core/blazor/components/overwriting-parameters?view=aspnetcore-8.0#overwritten-parameters).
 
 ### Example of a bad code
 
@@ -304,7 +304,7 @@ public class CalendarComponent : ComponentBase
 }
 ```
 
-This code would result in a [BL0005](https://learn.microsoft.com/en-us/aspnet/core/diagnostics/bl0005?view=aspnetcore-8.0) warning.
+This code would result in a [BL0005](https://learn.microsoft.com/aspnet/core/diagnostics/bl0005?view=aspnetcore-8.0) warning.
 
 ### Example of a good code
 
@@ -386,7 +386,6 @@ In the Test make sure to instantiate the razor file you just prepared above.
 ```
 
 As soon as you interact with html elements they are potentially re-rendered, and your variable becomes stale.
-As soon as you interact with html elements they are potentially re-rendered, and your variable becomes stale.
 
 ```c#
    var comp = ctx.RenderComponent<MudTextField<string>>();
@@ -435,6 +434,12 @@ cs files start with an underscore.
 
 ### Continuous Integration
 
-We have an Azure DevOps pipeline which will automatically execute the entire
-test suite on all pushes and PRs. If your commit or PR breaks the tests
-you'll be notified.
+We have a GitHub action which runs against all Pull Requests.
+
+It performs the following checks.
+- Builds the project.
+- Runs the test suite.
+- Checks the code coverage.
+- Checks the code quality.
+
+We generally require all these checks to pass before merging contributions.

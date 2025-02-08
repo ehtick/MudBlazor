@@ -8,17 +8,6 @@
   position: relative;
   flex-direction: column;
   vertical-align: top;
-  margin-top: 6px;
-
-  &.mud-input-control-margin-normal {
-    margin-top: 16px;
-    margin-bottom: 8px;
-  }
-
-  &.mud-input-control-margin-dense {
-    margin-top: 3px;
-    margin-bottom: 2px;
-  }
 
   &.mud-input-control-full-width {
     width: 100%;
@@ -27,6 +16,36 @@
   &.mud-input-control-boolean-input {
     flex: none;
     margin: 0;
+
+    & .mud-radio-group {
+      display: inherit;
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+  }
+
+  &.mud-input-outlined-with-label {
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+
+  &.mud-input-control-margin-dense {
+    margin: 4px 0px;
+
+    &.mud-input-outlined-with-label {
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+  }
+
+  &.mud-input-control-margin-normal {
+    margin: 8px 0px;
+
+    &.mud-input-outlined-with-label {
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
   }
 
   & > .mud-input-control-input-container {
@@ -40,22 +59,12 @@
           margin-top: 16px;
         }
       }
-
-      &.mud-input.mud-input-filled {
-        &.mud-input-text-with-label {
-        }
-      }
-
-      &.mud-input.mud-input-outlined {
-        &.mud-input-text-with-label {
-        }
-      }
     }
   }
 
   & > .mud-input-control-input-container > .mud-input-label-outlined {
     &.mud-input-label-inputcontrol {
-      line-height: 18px;
+      line-height: 1.15rem;
     }
   }
 
@@ -64,7 +73,7 @@
     padding: 0;
     font-size: 1rem;
     font-weight: 400;
-    line-height: 1;
+    line-height: 1.15rem;
     letter-spacing: 0.00938em;
     z-index: 0;
     pointer-events: none;
@@ -139,14 +148,18 @@
       bottom: 0;
 
       & button {
-        padding: 2px;
+        padding: 2px 0;
         min-width: unset;
         min-height: unset;
       }
     }
+  }
 
-    .mud-input-numeric-spin button {
-      padding: 2px 0;
+  &:focus-within, &.mud-input-error {
+    .mud-input-helper-text {
+      &.mud-input-helper-onfocus {
+        transform: translateY(0);
+      }
     }
   }
 }
@@ -168,16 +181,6 @@
   &.mud-input-helper-onfocus {
     transform: translateY(-100%);
     transition: color 200ms cubic-bezier(0,0,.2,1) 0ms,transform 200ms cubic-bezier(0,0,.2,1) 0ms;
-  }
-}
-
-.mud-input-control {
-  &:focus-within, &.mud-input-error {
-    .mud-input-helper-text {
-      &.mud-input-helper-onfocus {
-        transform: translateY(0);
-      }
-    }
   }
 }
 
